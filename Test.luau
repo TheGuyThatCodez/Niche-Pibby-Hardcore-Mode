@@ -53,7 +53,7 @@ local function Shady_Attack()
 	shadygui.Parent = game.Players.LocalPlayer.PlayerGui.MainUI
 	shadygui.ResampleMode = Enum.ResamplerMode.Pixelated
 	shadygui.ScaleType = Enum.ScaleType.Crop
-	shadygui.Name = "LiveShadyUi" --🌯BRO DIDNT CAPITALIZE HER I
+	shadygui.Name = "LiveShadyUi" --🌯BRO DIDNT CAPITALIZE HER I --🐟 Don't even talk to me BLUD.
 
 	local effect = Instance.new("ColorCorrectionEffect")
 	effect.Name = "LiveShadyEffect"
@@ -113,7 +113,15 @@ door.Changed:Connect(function()
 	local prevroom = workspace.CurrentRooms[`{door.Value-1}`]
 	local shadyspawn = seed:NextInteger(1,100)
 	--game:GetService("ReplicatedStorage").RemotesFolder.CaptionClient:Fire(shadyspawn)
-	if shadyspawn < 30 and not currroom:FindFirstChild("HidePrompt",true) and prevroom:FindFirstChild("HidePrompt",true) then
+	local isSomeoneLow = false
+	for i,v in ipairs(game.Players:GetPlayers()) do
+		if v.Character == nil then continue end
+		if v.Character.Humanoid.Health > 0 and v.Character.Humanoid.Health <= 60 then
+			isSomeoneLow = true
+			break
+		end
+	end
+	if isSomeoneLow and shadyspawn < 50 and not currroom:FindFirstChild("HidePrompt",true) and prevroom:FindFirstChild("HidePrompt",true) then
 		task.wait(seed:NextNumber(0.5,3))
 		Shady_Attack()
 	end
