@@ -20,6 +20,13 @@ local alldeathhints = {
 			"And remember where to hide if need be.",
 			"See you next time.",
 		},
+		hint_glitch = {
+			"CAUSE OF DEATH: [SHADY]",
+			"THIS ENTITY TARGETS LOW HEALTH PREY",
+			"IT ATTEMPTS TO PICK THEM OFF WHEN NO HIDING SPOTS ARE READILY ACCESSIBLE",
+			"TO SURVIVE, KEEP YOUR HEALTH ABOVE [60] TO BE FULLY SAFE",
+			"OTHERWISE, HIDE WHEN BIRD NOISES AND A SLIGHT SATURATION LOSS IS DETECTED",
+		}
 	}
 }
 --
