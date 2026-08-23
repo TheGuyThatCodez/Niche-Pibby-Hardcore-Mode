@@ -30,15 +30,22 @@ local alldeathhints = {
 	}
 }
 --
+local subfloors = {"Rooms","Backdoor","Outdoors","Archives"}
 local function KillWithReason(reason: string)
 	local hintdata = alldeathhints[reason]
+	local deathscreentype = {"Blue","moonlight"}
+	if game:GetService("ReplicatedStorage").GameData.IsVision.Value then
+		deathscreentype = {"Glitch","glitch"}
+	elseif table.find(subfloors,game:GetService("ReplicatedStorage").GameData.Floor.Value) then
+		deathscreentype = {"Yellow","starlight"}
+	end
 
 	replicatesignal(game.Players.LocalPlayer.Kill)
 
 	for i=1,5,0.05 do
 		task.wait(0.05)
 		game:GetService("ReplicatedStorage").GameStats[`Player_{game.Players.LocalPlayer.Name}`].Total.DeathCause.Value = hintdata.name
-		firesignal(game:GetService("ReplicatedStorage").RemotesFolder.DeathHint.OnClientEvent,hintdata.hint_moonlight,"Blue")
+		firesignal(game:GetService("ReplicatedStorage").RemotesFolder.DeathHint.OnClientEvent,hintdata[`hint_{deathscreentype[2]}`],deathscreentype[1])
 	end
 end
 --
@@ -107,7 +114,9 @@ local function Shady_Attack()
 	effect:Destroy()
 end
 --
-game:GetService("ReplicatedStorage").RemotesFolder.CaptionClient:Fire(`SEED: {game:GetService("ReplicatedStorage").GameData.GameSeed.Value}`)
+game:GetService("ReplicatedStorage").RemotesFolder.CaptionClient:Fire(`Nichemode made by:`)
+game:GetService("ReplicatedStorage").RemotesFolder.CaptionClient:Fire(`Willow & Nick`)
+game:GetService("ReplicatedStorage").RemotesFolder.CaptionClient:Fire(`Shady by Ping`)
 door.Changed:Connect(function()
 	local currroom = workspace.CurrentRooms[`{door.Value}`]
 	local prevroom = workspace.CurrentRooms[`{door.Value-1}`]
