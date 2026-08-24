@@ -137,6 +137,9 @@ door.Changed:Connect(function()
 			break
 		end
 	end
+	if game:GetService("ReplicatedStorage").GameData.Floor.Value == "Party" then
+		isSomeoneLow = true
+	end
 	if isSomeoneLow and shadyspawn < 50 and not currroom:FindFirstChild("HidePrompt",true) and prevroom:FindFirstChild("HidePrompt",true) then
 		task.wait(seed:NextNumber(0.5,3))
 		Shady_Attack()
