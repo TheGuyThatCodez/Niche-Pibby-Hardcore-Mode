@@ -34,7 +34,9 @@ local subfloors = {"Rooms","Backdoor","Outdoors","Archives"}
 local function KillWithReason(reason: string)
 	local hintdata = alldeathhints[reason]
 	local deathscreentype = {"Blue","moonlight"}
-	if game:GetService("ReplicatedStorage").GameData.IsVision.Value then
+	if game:GetService("ReplicatedStorage").GameData.Floor.Value == "Party" then
+		deathscreentype = nil
+	elseif game:GetService("ReplicatedStorage").GameData.IsVision.Value then
 		deathscreentype = {"Glitch","glitch"}
 	elseif table.find(subfloors,game:GetService("ReplicatedStorage").GameData.Floor.Value) then
 		deathscreentype = {"Yellow","starlight"}
@@ -46,7 +48,9 @@ local function KillWithReason(reason: string)
 		for i=1,5,0.05 do
 			task.wait(0.05)
 			game:GetService("ReplicatedStorage").GameStats[`Player_{game.Players.LocalPlayer.Name}`].Total.DeathCause.Value = hintdata.name
-			firesignal(game:GetService("ReplicatedStorage").RemotesFolder.DeathHint.OnClientEvent,hintdata[`hint_{deathscreentype[2]}`],deathscreentype[1])
+			if deathscreentype ~= nil then
+				firesignal(game:GetService("ReplicatedStorage").RemotesFolder.DeathHint.OnClientEvent,hintdata[`hint_{deathscreentype[2]}`],deathscreentype[1])
+			end
 		end
 	end)
 end
