@@ -1,5 +1,10 @@
+game:GetService("ReplicatedStorage").RemotesFolder.CaptionClient:Fire(`Loading...`)
+
+local rusherspawner = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/DOORS-Entity-Spawner-V2/main/init.luau"))()
+
 local seed = Random.new(game:GetService("ReplicatedStorage").GameData.GameSeed.Value)
 local tweenservice = game:GetService("TweenService")
+local collectionservice = game:GetService("CollectionService")
 local door = game:GetService("ReplicatedStorage").GameData.LatestRoom
 
 --
@@ -55,6 +60,122 @@ local function KillWithReason(reason: string)
 	end)
 end
 --
+local function Polaroid_Attack()
+	local muffle = Instance.new("EqualizerSoundEffect")
+	muffle.LowGain = 0
+	muffle.HighGain = 0
+	muffle.MidGain = 0
+	muffle.Name = "LivePolaroidEffect"
+	muffle.Parent = game:GetService("SoundService").Main
+	print(muffle.Parent)
+	for i,v in ipairs(collectionservice:GetTagged("LightSource")) do
+		local neon = v:FindFirstChild("Neon",true)
+		if neon then 
+			neon:SetAttribute("PrePolaroid",neon.Color)
+			tweenservice:Create(neon,TweenInfo.new(3),{Color = neon.Color:Lerp(Color3.new(0,0,0),0.5)}):Play()
+		end
+		for i2,v2 in ipairs(v:GetDescendants()) do
+			if v2:IsA("Light") then
+				v2:SetAttribute("PrePolaroid",v2.Brightness)
+				tweenservice:Create(v2,TweenInfo.new(3),{Brightness = v2.Brightness*0.3}):Play()
+				v2:SetAttribute("PrePolaroidRange",v2.Range)
+				tweenservice:Create(v2,TweenInfo.new(3),{Range = v2.Range*0.3}):Play()
+			end
+		end
+	end
+
+	local entity = rusherspawner:Create({
+		Entity = {
+			Name = "Polaroid",
+			Asset = "https://github.com/TheGuyThatCodez/Niche-Pibby-Hardcore-Mode/raw/main/Models/Polaroid.rbxm",
+			HeightOffset = 2
+		},
+		Lights = {
+			Flicker = {
+				Enabled = false,
+				Duration = 1
+			},
+			Shatter = false,
+			Repair = false
+		},
+		Earthquake = {
+			Enabled = false
+		},
+		CameraShake = {
+			Enabled = true,
+			Range = 30,
+			Values = {1.5, 1, 0.1, 1} -- Magnitude, Roughness, FadeIn, FadeOut
+		},
+		Movement = {
+			Speed = 70,
+			Delay = 5,
+			Reversed = false
+		},
+		Rebounding = {
+			Enabled = false,
+			Type = "Ambush", -- "Blitz"
+			Min = 1,
+			Max = 1,
+			Delay = 2
+		},
+		Damage = {
+			Enabled = true,
+			IgnoreHiding = false,
+			Range = 30,
+			Amount = 0 --Death is handled by custom function, not the entity spawner
+		},
+		Crucifixion = {
+			Type = "Guiding",
+			Enabled = true,
+			Range = 40,
+			Resist = false,
+			Break = true
+		},
+		Death = {
+			Type = "Guiding", -- "Curious"
+			Hints = {},
+			Cause = ""
+		}
+	})
+	entity:SetCallback("OnDamagePlayer", function(newHealth: number)
+		KillWithReason("Polaroid")
+	end)
+	entity:SetCallback("OnDespawning", function()
+		for i,v in ipairs(collectionservice:GetTagged("LightSource")) do
+			local neon = v:FindFirstChild("Neon",true)
+			if neon and neon:GetAttribute("PrePolaroid") then 
+				tweenservice:Create(neon,TweenInfo.new(3),{Color = neon:GetAttribute("PrePolaroid",neon.Color)}):Play()
+			end
+			for i2,v2 in ipairs(v:GetDescendants()) do
+				if v2:IsA("Light") and v2:GetAttribute("PrePolaroid") then
+					tweenservice:Create(v2,TweenInfo.new(3),{Brightness = v2:GetAttribute("PrePolaroid")}):Play()
+					tweenservice:Create(v2,TweenInfo.new(3),{Range = v2:GetAttribute("PrePolaroidRange")}):Play()
+				end
+			end
+		end
+	end)
+	entity:Run(true)
+	task.defer(function()
+		while entity.Model and entity.Model.Parent do
+			local distance = (workspace.CurrentCamera.CFrame.Position-entity.Model.Main.Position).Magnitude
+			tweenservice:Create(muffle,TweenInfo.new(0.5),{
+				LowGain = -(1/distance)*400,
+				MidGain = -(1/distance)*900,
+				HighGain = -(1/distance)*1500,
+			}):Play()
+			print(muffle.MidGain)
+			task.wait()
+		end
+		tweenservice:Create(muffle,TweenInfo.new(2),{
+			LowGain = 0,
+			MidGain = 0,
+			HighGain = 0,
+		})
+		task.wait(2)
+		muffle:Destroy()
+	end)
+end
+
 local function Shady_Attack()
 	local shadygui = Instance.new("ImageLabel")
 	shadygui.Size = UDim2.fromScale(2,2)
@@ -123,11 +244,12 @@ end
 --
 game:GetService("ReplicatedStorage").RemotesFolder.CaptionClient:Fire(`Nichemode made by:`)
 game:GetService("ReplicatedStorage").RemotesFolder.CaptionClient:Fire(`Willow & Nick`)
-game:GetService("ReplicatedStorage").RemotesFolder.CaptionClient:Fire(`Shady by Ping`)
+game:GetService("ReplicatedStorage").RemotesFolder.CaptionClient:Fire(`Shady by Ping, Polaroid by Bungus`)
 door.Changed:Connect(function()
 	local currroom = workspace.CurrentRooms[`{door.Value}`]
 	local prevroom = workspace.CurrentRooms[`{door.Value-1}`]
 	local shadyspawn = seed:NextInteger(1,100)
+	local polaroidspawn = seed:NextInteger(1,100)
 	--game:GetService("ReplicatedStorage").RemotesFolder.CaptionClient:Fire(shadyspawn)
 	local isSomeoneLow = false
 	for i,v in ipairs(game.Players:GetPlayers()) do
@@ -140,14 +262,26 @@ door.Changed:Connect(function()
 	if game:GetService("ReplicatedStorage").GameData.Floor.Value == "Party" then
 		isSomeoneLow = true
 	end
-	if isSomeoneLow and shadyspawn < 50 and not currroom:FindFirstChild("HidePrompt",true) and prevroom:FindFirstChild("HidePrompt",true) then
-		task.wait(seed:NextNumber(0.5,3))
-		Shady_Attack()
-	end
+	task.defer(function()
+		if isSomeoneLow and shadyspawn < 50 and not currroom:FindFirstChild("HidePrompt",true) and prevroom:FindFirstChild("HidePrompt",true) then
+			task.wait(seed:NextNumber(0.5,3))
+			Shady_Attack()
+		end
+	end)
+	task.defer(function()
+		--game:GetService("ReplicatedStorage").RemotesFolder.CaptionClient:Fire(`{polaroidspawn}<{math.lerp(15,80,door.Value/100)}`)
+		if polaroidspawn < math.lerp(15,80,door.Value/100) and currroom:FindFirstChild("HidePrompt",true) and door.Value > 8 then
+			task.wait(seed:NextNumber(0.5,3))
+			Polaroid_Attack()
+		end
+	end)
 end)
 
 game:GetService("TextChatService").MessageReceived:Connect(function(a0: TextChatMessage)
 	if a0.Text == "/shady" then
 		Shady_Attack()
+	end
+	if a0.Text == "/polaroid" then
+		Polaroid_Attack()
 	end
 end)
