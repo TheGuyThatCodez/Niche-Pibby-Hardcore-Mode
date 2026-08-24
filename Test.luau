@@ -42,11 +42,13 @@ local function KillWithReason(reason: string)
 
 	replicatesignal(game.Players.LocalPlayer.Kill)
 
-	for i=1,5,0.05 do
-		task.wait(0.05)
-		game:GetService("ReplicatedStorage").GameStats[`Player_{game.Players.LocalPlayer.Name}`].Total.DeathCause.Value = hintdata.name
-		firesignal(game:GetService("ReplicatedStorage").RemotesFolder.DeathHint.OnClientEvent,hintdata[`hint_{deathscreentype[2]}`],deathscreentype[1])
-	end
+	task.defer(function()
+		for i=1,5,0.05 do
+			task.wait(0.05)
+			game:GetService("ReplicatedStorage").GameStats[`Player_{game.Players.LocalPlayer.Name}`].Total.DeathCause.Value = hintdata.name
+			firesignal(game:GetService("ReplicatedStorage").RemotesFolder.DeathHint.OnClientEvent,hintdata[`hint_{deathscreentype[2]}`],deathscreentype[1])
+		end
+	end)
 end
 --
 local function Shady_Attack()
@@ -86,7 +88,7 @@ local function Shady_Attack()
 
 	tweenservice:Create(shadygui,TweenInfo.new(2,Enum.EasingStyle.Cubic),{Size = UDim2.fromScale(1.3,1.3),ImageTransparency = 0.6}):Play()
 	tweenservice:Create(effect,TweenInfo.new(3,Enum.EasingStyle.Cubic),{Saturation = -0.6}):Play()
-
+	game:GetService("ReplicatedStorage").RemotesFolder.CamShakeClient:Fire(1,4,9,0.75,Vector3.zero,Vector3.one)
 	task.wait(2)
 	tweenservice:Create(shadygui,TweenInfo.new(6.5,Enum.EasingStyle.Cubic,Enum.EasingDirection.In),{Size = UDim2.fromScale(1.2,1.2),ImageTransparency = 0.5}):Play()
 	task.wait(3)
@@ -97,6 +99,7 @@ local function Shady_Attack()
 	shadygui.ImageTransparency = 0.2
 	effect.Brightness = 0.1
 	effect.Saturation = -1
+	game:GetService("ReplicatedStorage").RemotesFolder.CamShakeClient:Fire(6,4,0.1,0.75,Vector3.zero,Vector3.one)
 	task.wait(0.1)
 	local character = game.Players.LocalPlayer.Character
 	if not character:GetAttribute("Hiding") then
@@ -132,6 +135,12 @@ door.Changed:Connect(function()
 	end
 	if isSomeoneLow and shadyspawn < 50 and not currroom:FindFirstChild("HidePrompt",true) and prevroom:FindFirstChild("HidePrompt",true) then
 		task.wait(seed:NextNumber(0.5,3))
+		Shady_Attack()
+	end
+end)
+
+game:GetService("TextChatService").MessageReceived:Connect(function(a0: TextChatMessage)
+	if a0.Text == "/shady" then
 		Shady_Attack()
 	end
 end)
