@@ -30,7 +30,7 @@ local alldeathhints = {
 	}
 }
 --
-local subfloors = {"Rooms","Backdoor","Outdoors","Archives"}
+local subfloors = {"Rooms","Backdoor","Garden","Archives"}
 local function KillWithReason(reason: string)
 	local hintdata = alldeathhints[reason]
 	local deathscreentype = {"Blue","moonlight"}
