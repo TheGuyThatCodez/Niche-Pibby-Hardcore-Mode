@@ -35,6 +35,21 @@ local alldeathhints = {
 			"TO SURVIVE, KEEP YOUR \nHEALTH ABOVE \n\n[60] \n\nTO BE FULLY SAFE",
 			"OTHERWISE, HIDE WHEN BIRD NOISES AND A SLIGHT \nSATURATION LOSS IS DETECTED",
 		}
+	},
+	["Polaroid"] = {
+		name = "Polaroid",
+		hint_moonlight = { --semi placeholder
+			"You died to Polaroid...",
+			"Be on the lookout for any visual or audio changes.",
+			"Use what you've learn from Rush!"
+		},
+		hint_starlight = {},
+		hint_glitch = {
+			"CAUSE OF DEATH:\n\n    [POLAROID]",
+			"THIS ENTITY SLOWLY RUSHES THROUGH SEVERAL ROOMS\nAFTER DIMMING THE LIGHTS",
+			"IT ALSO MUFFLES ANY INCOMING AUDIO SIGNALS",
+			"YOU MUST SIMPLY HIDE TO SURVIVE",
+		}
 	}
 }
 --
