@@ -79,8 +79,8 @@ local function CheckSpawnability(CheckChases:number, CheckMilestone:number, Chec
 	}
 	local ManualMilestones = {
 		Backdoor = {50},
-		Hotel = {50,89,99,100},
-		Mines = {49,50,100},
+		Hotel = {49,50,51,60,89,99,100},
+		Mines = {49,50,51,100},
 		Garden = {35},
 		Rooms = {1000},
 		Archives = {-1},
