@@ -62,6 +62,7 @@ local function KillWithReason(reason: string)
 		end
 	end)
 end
+
 --[[
 CheckChases and CheckMilestone are from a range of 0-2
 0 = Do not check at all
@@ -79,8 +80,8 @@ local function CheckSpawnability(CheckChases:number, CheckMilestone:number, Chec
 	}
 	local ManualMilestones = {
 		Backdoor = {50},
-		Hotel = {49,50,51,60,89,99,100},
-		Mines = {49,50,51,100}, --🌯is sewer chase a set room i forgoet and when does mines chase start
+		Hotel = {49,50,51,60,88,89,90,99,100},
+		Mines = {42,49,50,51,100},
 		Garden = {35},
 		Rooms = {1000},
 		Archives = {-1},
@@ -88,7 +89,7 @@ local function CheckSpawnability(CheckChases:number, CheckMilestone:number, Chec
 	
 	local floor = RepStorage.GameData.Floor.Value
 	local specific = RepStorage.GameData.FloorDestination.Value
-	if floor == "Party" then
+	if floor == "Party" and door.Value > 1 then
 		return true
 	end
 	if CheckSpecial then
