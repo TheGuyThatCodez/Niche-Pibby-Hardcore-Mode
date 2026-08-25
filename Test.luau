@@ -50,6 +50,8 @@ local function KillWithReason(reason: string)
 		deathscreentype = {"Yellow","starlight"}
 	end
 
+	local maingame = require(game:GetService("Players").LocalPlayer.PlayerGui.MainUI.Initiator.Main_Game)
+	task.defer(require(game:GetService("Players").LocalPlayer.PlayerGui.MainUI.Initiator.Main_Game.RemoteListener.Jumpscares.Death),maingame)
 	replicatesignal(game.Players.LocalPlayer.Kill)
 
 	task.defer(function()
