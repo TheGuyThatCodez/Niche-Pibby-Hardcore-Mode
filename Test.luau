@@ -1,11 +1,14 @@
-game:GetService("ReplicatedStorage").RemotesFolder.CaptionClient:Fire(`Loading...`)
+local RepStorage = game:GetService("ReplicatedStorage")
+
+RepStorage.RemotesFolder.CaptionClient:Fire(`Loading...`)
 
 local rusherspawner = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/DOORS-Entity-Spawner-V2/main/init.luau"))()
 
-local seed = Random.new(game:GetService("ReplicatedStorage").GameData.GameSeed.Value)
+local seed = Random.new(RepStorage.GameData.GameSeed.Value)
 local tweenservice = game:GetService("TweenService")
 local collectionservice = game:GetService("CollectionService")
-local door = game:GetService("ReplicatedStorage").GameData.LatestRoom
+
+local door = RepStorage.GameData.LatestRoom
 
 --
 local alldeathhints = {
@@ -39,11 +42,11 @@ local subfloors = {"Rooms","Backdoor","Garden","Archives"}
 local function KillWithReason(reason: string)
 	local hintdata = alldeathhints[reason]
 	local deathscreentype = {"Blue","moonlight"}
-	if game:GetService("ReplicatedStorage").GameData.Floor.Value == "Party" then
+	if RepStorage.GameData.Floor.Value == "Party" then
 		deathscreentype = nil
-	elseif game:GetService("ReplicatedStorage").GameData.IsVision.Value then
+	elseif RepStorage.GameData.IsVision.Value then
 		deathscreentype = {"Glitch","glitch"}
-	elseif table.find(subfloors,game:GetService("ReplicatedStorage").GameData.Floor.Value) then
+	elseif table.find(subfloors,RepStorage.GameData.Floor.Value) then
 		deathscreentype = {"Yellow","starlight"}
 	end
 
@@ -52,12 +55,69 @@ local function KillWithReason(reason: string)
 	task.defer(function()
 		for i=1,5,0.05 do
 			task.wait(0.05)
-			game:GetService("ReplicatedStorage").GameStats[`Player_{game.Players.LocalPlayer.Name}`].Total.DeathCause.Value = hintdata.name
+			RepStorage.GameStats[`Player_{game.Players.LocalPlayer.Name}`].Total.DeathCause.Value = hintdata.name
 			if deathscreentype ~= nil then
-				firesignal(game:GetService("ReplicatedStorage").RemotesFolder.DeathHint.OnClientEvent,hintdata[`hint_{deathscreentype[2]}`],deathscreentype[1])
+				firesignal(RepStorage.RemotesFolder.DeathHint.OnClientEvent,hintdata[`hint_{deathscreentype[2]}`],deathscreentype[1])
 			end
 		end
 	end)
+end
+--[[
+CheckChases and CheckMilestone are from a range of 0-2
+0 = Do not check at all
+1 = Check, but only if it specifically the values
+2 = Check, but also with padding of 4 rooms after
+]]
+local function CheckSpawnability(CheckChases:number, CheckMilestone:number, CheckSpecial:boolean)
+	if typeof(CheckChases) ~= "number" then CheckChases = 2 end
+	if typeof(CheckMilestone) ~= "number" then CheckMilestone = 2 end
+	if typeof(CheckSpecial) ~= "boolean" then CheckSpecial = true end
+
+	local ChaseFloors = {"Hotel", "Mines", "Garden"}
+	local SpecialChecks = {
+		CurrentRooms = {"SkellyFriend", "El Goblino", "Grampy"}
+	}
+	local ManualMilestones = {
+		Backdoor = {50},
+		Hotel = {50,89,99,100},
+		Mines = {49,50,100},
+		Garden = {35},
+		Rooms = {1000},
+		Archives = {-1},
+	}
+	
+	local floor = RepStorage.GameData.Floor.Value
+	local specific = RepStorage.GameData.FloorDestination.Value
+	if floor == "Party" then
+		return true
+	end
+	if CheckSpecial then
+		if workspace.CurrentCamera:FindFirstChild("Shade", true) then
+			return false
+		end
+		for the,sigma in pairs(SpecialChecks) do
+			if workspace:FindFirstChild(the) then
+				for i,v in pairs(sigma) do
+					if workspace:FindFirstChild(the):FindFirstChild(sigma, true) then
+						return false --🌯WORLD'S MOST OPTIMIZED CODE?BRO S
+					end
+				end
+			end
+		end
+	end
+	if ChaseFloors[floor] ~= nil then
+		if (CheckChases == 1 and door.Value >= RepStorage.GameData.ChaseEnd.Value) or (CheckChases >= 2 and door.Value >= RepStorage.GameData.ChaseEnd.Value + 4) then
+			return false
+		end
+	end
+	if CheckMilestone > 0 and ManualMilestones[floor] ~= nil then
+		for i,v in pairs(ManualMilestones[floor]) do
+			if (CheckMilestone == 1 and door.Value == v) or (CheckMilestone == 2 and math.abs(door.Value-v) < 4) then
+				return false
+			end
+		end
+	end
+	return true
 end
 --
 local function Polaroid_Attack()
@@ -213,7 +273,7 @@ local function Shady_Attack()
 
 	tweenservice:Create(shadygui,TweenInfo.new(2,Enum.EasingStyle.Cubic),{Size = UDim2.fromScale(1.3,1.3),ImageTransparency = 0.6}):Play()
 	tweenservice:Create(effect,TweenInfo.new(3,Enum.EasingStyle.Cubic),{Saturation = -0.6}):Play()
-	game:GetService("ReplicatedStorage").RemotesFolder.CamShakeClient:Fire(1,4,9,0.75,Vector3.zero,Vector3.one)
+	RepStorage.RemotesFolder.CamShakeClient:Fire(1,4,9,0.75,Vector3.zero,Vector3.one)
 	task.wait(2)
 	tweenservice:Create(shadygui,TweenInfo.new(6.5,Enum.EasingStyle.Cubic,Enum.EasingDirection.In),{Size = UDim2.fromScale(1.2,1.2),ImageTransparency = 0.5}):Play()
 	task.wait(3)
@@ -224,7 +284,7 @@ local function Shady_Attack()
 	shadygui.ImageTransparency = 0.2
 	effect.Brightness = 0.1
 	effect.Saturation = -1
-	game:GetService("ReplicatedStorage").RemotesFolder.CamShakeClient:Fire(6,4,0.1,0.75,Vector3.zero,Vector3.one)
+	RepStorage.RemotesFolder.CamShakeClient:Fire(6,4,0.1,0.75,Vector3.zero,Vector3.one)
 	task.wait(0.1)
 	local character = game.Players.LocalPlayer.Character
 	if not character:GetAttribute("Hiding") then
@@ -242,15 +302,15 @@ local function Shady_Attack()
 	effect:Destroy()
 end
 --
-game:GetService("ReplicatedStorage").RemotesFolder.CaptionClient:Fire(`Nichemode made by:`)
-game:GetService("ReplicatedStorage").RemotesFolder.CaptionClient:Fire(`Willow & Nick`)
-game:GetService("ReplicatedStorage").RemotesFolder.CaptionClient:Fire(`Shady by Ping, Polaroid by Bungus`)
+RepStorage.RemotesFolder.CaptionClient:Fire(`Nichemode made by:`)
+RepStorage.RemotesFolder.CaptionClient:Fire(`Willow & Nick`)
+RepStorage.RemotesFolder.CaptionClient:Fire(`Shady by Ping, Polaroid by Bungus`)
 door.Changed:Connect(function()
 	local currroom = workspace.CurrentRooms[`{door.Value}`]
 	local prevroom = workspace.CurrentRooms[`{door.Value-1}`]
 	local shadyspawn = seed:NextInteger(1,100)
 	local polaroidspawn = seed:NextInteger(1,100)
-	--game:GetService("ReplicatedStorage").RemotesFolder.CaptionClient:Fire(shadyspawn)
+	--RepStorage.RemotesFolder.CaptionClient:Fire(shadyspawn)
 	local isSomeoneLow = false
 	for i,v in ipairs(game.Players:GetPlayers()) do
 		if v.Character == nil then continue end
@@ -259,18 +319,18 @@ door.Changed:Connect(function()
 			break
 		end
 	end
-	if game:GetService("ReplicatedStorage").GameData.Floor.Value == "Party" then
+	if RepStorage.GameData.Floor.Value == "Party" then
 		isSomeoneLow = true
 	end
 	task.defer(function()
-		if isSomeoneLow and shadyspawn < 50 and not currroom:FindFirstChild("HidePrompt",true) and prevroom:FindFirstChild("HidePrompt",true) then
+		if isSomeoneLow and CheckSpawnability(2, 2, true) and shadyspawn < 50 and not currroom:FindFirstChild("HidePrompt",true) and prevroom:FindFirstChild("HidePrompt",true) then
 			task.wait(seed:NextNumber(0.5,3))
 			Shady_Attack()
 		end
 	end)
 	task.defer(function()
-		--game:GetService("ReplicatedStorage").RemotesFolder.CaptionClient:Fire(`{polaroidspawn}<{math.lerp(15,80,door.Value/100)}`)
-		if polaroidspawn < math.lerp(15,80,door.Value/100) and currroom:FindFirstChild("HidePrompt",true) and door.Value > 8 then
+		--RepStorage.RemotesFolder.CaptionClient:Fire(`{polaroidspawn}<{math.lerp(15,80,door.Value/100)}`)
+		if CheckSpawnability(2, 2, true) and polaroidspawn < math.lerp(15,80,door.Value/100) and currroom:FindFirstChild("HidePrompt",true) and door.Value > 8 then
 			task.wait(seed:NextNumber(0.5,3))
 			Polaroid_Attack()
 		end
