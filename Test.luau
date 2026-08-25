@@ -80,7 +80,7 @@ local function CheckSpawnability(CheckChases:number, CheckMilestone:number, Chec
 	local ManualMilestones = {
 		Backdoor = {50},
 		Hotel = {49,50,51,60,89,99,100},
-		Mines = {49,50,51,100},
+		Mines = {49,50,51,100}, --🌯is sewer chase a set room i forgoet and when does mines chase start
 		Garden = {35},
 		Rooms = {1000},
 		Archives = {-1},
@@ -105,16 +105,16 @@ local function CheckSpawnability(CheckChases:number, CheckMilestone:number, Chec
 			end
 		end
 	end
-	if ChaseFloors[floor] ~= nil then
-		if (CheckChases == 1 and door.Value >= RepStorage.GameData.ChaseEnd.Value) or (CheckChases >= 2 and door.Value >= RepStorage.GameData.ChaseEnd.Value + 4) then
-			return false
-		end
-	end
 	if CheckMilestone > 0 and ManualMilestones[floor] ~= nil then
 		for i,v in pairs(ManualMilestones[floor]) do
 			if (CheckMilestone == 1 and door.Value == v) or (CheckMilestone == 2 and math.abs(door.Value-v) < 4) then
 				return false
 			end
+		end
+	end
+	if ChaseFloors[floor] ~= nil then
+		if (CheckChases == 1 and door.Value >= RepStorage.GameData.ChaseEnd.Value) or (CheckChases >= 2 and door.Value >= RepStorage.GameData.ChaseEnd.Value + 4) then
+			return false
 		end
 	end
 	return true
