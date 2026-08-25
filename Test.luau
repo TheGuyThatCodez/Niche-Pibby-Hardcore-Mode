@@ -41,7 +41,7 @@ local alldeathhints = {
 		hint_moonlight = { --semi placeholder
 			"You died to Polaroid...",
 			"Be on the lookout for any visual or audio changes.",
-			"Use what you've learn from Rush!"
+			"Use what you've learnt from Rush!"
 		},
 		hint_starlight = {},
 		hint_glitch = {
