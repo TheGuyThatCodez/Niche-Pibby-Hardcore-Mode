@@ -248,7 +248,7 @@ local function Shady_Attack()
 	shadygui.Parent = game.Players.LocalPlayer.PlayerGui.MainUI
 	shadygui.ResampleMode = Enum.ResamplerMode.Pixelated
 	shadygui.ScaleType = Enum.ScaleType.Crop
-	shadygui.Name = "LiveShadyUi" --🌯BRO DIDNT CAPITALIZE HER I --🐟 Don't even talk to me BLUD.
+	shadygui.Name = "LiveShadyUI" --🌯BRO DIDNT CAPITALIZE HER I --🐟 Don't even talk to me BLUD. -- hi i fixed it
 
 	local effect = Instance.new("ColorCorrectionEffect")
 	effect.Name = "LiveShadyEffect"
