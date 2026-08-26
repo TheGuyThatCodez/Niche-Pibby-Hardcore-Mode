@@ -2,13 +2,127 @@ local RepStorage = game:GetService("ReplicatedStorage")
 
 RepStorage.RemotesFolder.CaptionClient:Fire(`Loading...`)
 
-local rusherspawner = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/DOORS-Entity-Spawner-V2/main/init.luau"))()
-
 local seed = Random.new(RepStorage.GameData.GameSeed.Value)
+local door = RepStorage.GameData.LatestRoom
+
+local allachievements = {
+	ShadySurvive = {
+		Title = "Nevermore",
+		Desc = "Don't even speak to me!",
+		Reason = "Survive Shady.",
+		BadgeId = 0,
+		Image = "rbxassetid://0",
+
+		Gradient = "Survive"
+	},
+	ShadyCloseSurvive = {
+		Title = "Close Caw",
+		Desc = "I'm soaked!",
+		Reason = "Narrowly survive an attack by Shady.",
+		BadgeId = 1,
+		Image = "rbxassetid://0",
+
+		Gradient = "SurviveRare"
+	},
+
+	PolaroidSurvive = {
+		Title = "Shutterstock",
+		Desc = "What's going on? Who turned off the lights?",
+		Reason = "Survive Polaroid.",
+		BadgeId = 2,
+		Image = "rbxassetid://0",
+
+		Gradient = "Survive"
+	},
+}
+
+local function GiveAchievement(id)
+	local achievements = string.split(readfile("nichemode/achievements.txt"),"\n")
+	if table.find(achievements,id) or allachievements[id].GotThisSession then
+		warn("ALREADY HAS ACHIEVEMENT!!!",id)
+		return
+	end
+
+	local achievementmodule = require(game:GetService("ReplicatedStorage").ModulesShared.Achievements)
+	local giveachievement = require(game.Players.LocalPlayer.PlayerGui.MainUI:FindFirstChild("AchievementUnlock",true))
+
+	local achievementplaceholder = `Custom{tick()}`
+	achievementmodule[achievementplaceholder] = {
+		GetInfo = function()
+			return allachievements[id]
+		end
+	}
+
+	task.defer(function()
+		giveachievement(achievementmodule,achievementplaceholder)
+	end)
+	allachievements[id].GotThisSession = true
+	appendfile("nichemode/achievements.txt",`\n{id}`)
+end
+
+if workspace:FindFirstChild("Lobby") then
+	RepStorage.RemotesFolder.CaptionClient:Fire(`Lobby loaded!`)
+
+	local achievementframe = game:GetService("Players").LocalPlayer.PlayerGui.MainUI.LobbyFrame.Achievements
+	local header = achievementframe.List.HeaderEvents:Clone()
+	header.Text = "NICHEMODE"
+	header.LayoutOrder = -300000
+	header.Name = "HeaderNichemode"
+	header.Parent = achievementframe.List
+
+	for i,v in pairs(allachievements) do
+		local newbadge = achievementframe.List.Badge:Clone()
+		newbadge.Visible = true
+		newbadge.Parent = achievementframe.List
+		newbadge.Name = `_Custom_{i}`
+		newbadge.LayoutOrder = -300000+v.BadgeId
+
+		local gradient = Instance.new("UIGradient")
+		require(game:GetService("ReplicatedStorage").ModulesClient.BadgeGradients)(gradient,v.Gradient)
+
+		gradient.Parent = newbadge.OutlineImage
+		newbadge.Image = v.Image
+
+		local got = false
+		local achievements = string.split(readfile("nichemode/achievements.txt"),"\n")
+		if table.find(achievements,i) then
+			print("I Have It!")
+			newbadge.ImageColor3 = Color3.new(1,1,1)
+			newbadge.ImageTransparency = 0
+			newbadge.OutlineImage.ImageColor3 = Color3.new(1,1,1)
+			got = true
+		end
+
+		newbadge.Activated:Connect(function()
+			achievementframe.Frame.TextHolder.Title.Text = v.Title
+			achievementframe.Frame.TextHolder.Desc.Text = v.Desc
+			achievementframe.Frame.TextHolder.Reason.Text = v.Reason
+			if got == false then
+				achievementframe.Frame.TextHolder.Title.Text = "Locked Achievement"
+				achievementframe.Frame.TextHolder.Desc.Text = "Unlock this achievement to view its description!"
+				achievementframe.Frame.TextHolder.Reason.Text = v.Reason
+			end
+			achievementframe.Frame.TextHolder.IsSecret.Visible = false
+
+			achievementframe.Frame.CheckHolder.Visible = false
+			achievementframe.Frame.Applied.Visible = false
+			achievementframe.Frame.Apply.Visible = false
+			--achievementframe.Frame.CantApply.Visible = true
+			achievementframe.Frame.ImageLabel.Image = v.Image
+			achievementframe.Frame.ImageLabel.OutlineImage.Image = "rbxassetid://116382081183309"
+
+			require(game:GetService("ReplicatedStorage").ModulesClient.BadgeGradients)(achievementframe.Frame.ImageLabel.OutlineImage.ThemeGradient,v.Gradient)
+			require(game:GetService("ReplicatedStorage").ModulesClient.BadgeGradients)(achievementframe.Frame.TextHolder.Title.ThemeGradient,v.Gradient)
+		end)
+	end
+
+	return
+end
+
 local tweenservice = game:GetService("TweenService")
 local collectionservice = game:GetService("CollectionService")
-
-local door = RepStorage.GameData.LatestRoom
+local rusherspawner = loadstring(game:HttpGet("https://raw.githubusercontent.com/RegularVynixu/DOORS-Entity-Spawner-V2/main/init.luau"))()
+local lights = require(game:GetService("ReplicatedStorage").ModulesClient.Module_Events)
 
 --
 local alldeathhints = {
@@ -231,6 +345,9 @@ local function Polaroid_Attack()
 				end
 			end
 		end
+		if game.Players.LocalPlayer.Character:GetAttribute("Alive") then
+			GiveAchievement("PolaroidSurvive")
+		end
 	end)
 	entity:Run(true)
 	task.defer(function()
@@ -307,6 +424,11 @@ local function Shady_Attack()
 	local character = game.Players.LocalPlayer.Character
 	if not character:GetAttribute("Hiding") then
 		KillWithReason("Shady")
+	else
+		GiveAchievement("ShadySurvive")
+		if character:GetAttribute("AnimatingClient") then
+			GiveAchievement("ShadyCloseSurvive")
+		end
 	end
 	tweenservice:Create(effect,TweenInfo.new(3,Enum.EasingStyle.Linear,Enum.EasingDirection.Out),{Saturation = 0,Brightness = 0}):Play()
 	tweenservice:Create(shadygui,TweenInfo.new(5,Enum.EasingStyle.Cubic,Enum.EasingDirection.InOut),{Size = UDim2.fromScale(3,3),ImageTransparency = 1}):Play()
@@ -353,6 +475,25 @@ door.Changed:Connect(function()
 			Polaroid_Attack()
 		end
 	end)
+	task.defer(function()
+		if workspace:FindFirstChild("SeekMusic",true) and workspace:FindFirstChild("SeekMusic",true).Playing then
+			lights.shatter(door.Value)
+		end
+	end)
+end)
+
+workspace.ChildAdded:Connect(function(a0: Instance)
+	if a0.Name == "SeekMovingNewClone" and a0:WaitForChild("SeekMusic") then
+		while workspace.SeekMovingNewClone.SeekMusic.Playing == false do
+			task.wait()
+		end
+		task.wait(0.5)
+		lights.flicker(door.Value)
+		task.wait(2)
+		lights.flicker(door.Value)
+		task.wait(1)
+		lights.shatter(door.Value)
+	end
 end)
 
 game:GetService("TextChatService").MessageReceived:Connect(function(a0: TextChatMessage)
