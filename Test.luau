@@ -351,6 +351,8 @@ local function Polaroid_Attack()
 	end)
 	entity:Run(true)
 	task.defer(function()
+		entity.Model:FindFirstChild("Far").SoundId = LoadCustomAsset("https://github.com/TheGuyThatCodez/Niche-Pibby-Hardcore-Mode/raw/main/Audio/PolaroidFar.ogg")
+		entity.Model:FindFirstChild("Close").SoundId = LoadCustomAsset("https://github.com/TheGuyThatCodez/Niche-Pibby-Hardcore-Mode/raw/main/Audio/PolaroidNear.ogg")
 		while entity.Model and entity.Model.Parent do
 			local distance = (workspace.CurrentCamera.CFrame.Position-entity.Model.Main.Position).Magnitude
 			tweenservice:Create(muffle,TweenInfo.new(0.5),{
@@ -476,7 +478,7 @@ door.Changed:Connect(function()
 		end
 	end)
 	task.defer(function()
-		if workspace:FindFirstChild("SeekMusic",true) and workspace:FindFirstChild("SeekMusic",true).Playing and RepStorage.GameData.ChaseEnd.Value < door.Value then
+		if workspace:FindFirstChild("SeekMusic",true) and workspace:FindFirstChild("SeekMusic",true).Playing then
 			lights.shatter(door.Value)
 		end
 	end)
