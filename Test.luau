@@ -26,8 +26,8 @@ local allachievements = {
 	},
 
 	PolaroidSurvive = {
-		Title = "Shutterstock",
-		Desc = "What's going on? Who turned off the lights?",
+		Title = "Hear No Evil",
+		Desc = "...that was probably nothing!",
 		Reason = "Survive Polaroid.",
 		BadgeId = 2,
 		Image = "rbxassetid://0",
@@ -351,8 +351,13 @@ local function Polaroid_Attack()
 	end)
 	entity:Run(true)
 	task.defer(function()
-		entity.Model:FindFirstChild("Far").SoundId = LoadCustomAsset("https://github.com/TheGuyThatCodez/Niche-Pibby-Hardcore-Mode/raw/main/Audio/PolaroidFar.ogg")
-		entity.Model:FindFirstChild("Close").SoundId = LoadCustomAsset("https://github.com/TheGuyThatCodez/Niche-Pibby-Hardcore-Mode/raw/main/Audio/PolaroidNear.ogg")
+		entity.Model.Main:WaitForChild("Far").SoundId = LoadCustomAsset("https://github.com/TheGuyThatCodez/Niche-Pibby-Hardcore-Mode/raw/main/Audio/PolaroidFar.ogg")
+		entity.Model.Main:WaitForChild("Close").SoundId = LoadCustomAsset("https://github.com/TheGuyThatCodez/Niche-Pibby-Hardcore-Mode/raw/main/Audio/PolaroidNear.ogg")
+		for i,v in ipairs(entity.Model.Main:GetChildren()) do
+			if v:IsA("Sound") then
+				v.SoundGroup = game:GetService("SoundService").Main
+			end
+		end
 		while entity.Model and entity.Model.Parent do
 			local distance = (workspace.CurrentCamera.CFrame.Position-entity.Model.Main.Position).Magnitude
 			tweenservice:Create(muffle,TweenInfo.new(0.5),{
