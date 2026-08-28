@@ -483,7 +483,7 @@ door.Changed:Connect(function()
 		end
 	end)
 	task.defer(function()
-		if workspace:FindFirstChild("SeekMusic",true) and workspace:FindFirstChild("SeekMusic",true).Playing then
+		if workspace:FindFirstChild("SeekMusic",true) and workspace:FindFirstChild("SeekMusic",true).Playing and door.Value < RepStorage.GameData.ChaseEnd.Value then
 			lights.shatter(door.Value)
 		end
 	end)
