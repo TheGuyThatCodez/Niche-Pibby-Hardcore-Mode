@@ -34,6 +34,25 @@ local allachievements = {
 
 		Gradient = "Survive"
 	},
+
+	SECRETNICHESurvive = {
+		Title = "Sigma",
+		Desc = "Sigma!",
+		Reason = "Survive SECRETNICCHE.",
+		BadgeId = 4,
+		Image = "rbxassetid://0",
+
+		Gradient = "Survive"
+	},
+	SECRETNICHECloseSurvive = {
+		Title = "Sigma 2",
+		Desc = "Sigma 2!",
+		Reason = "Survive SECRETNICCHEbut in a cool way.",
+		BadgeId = 5,
+		Image = "rbxassetid://0",
+
+		Gradient = "SurviveRare"
+	},
 }
 
 local function GiveAchievement(id)
